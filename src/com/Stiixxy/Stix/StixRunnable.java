@@ -69,9 +69,9 @@ public abstract class StixRunnable implements Runnable{
 	}
 	
 	//Functions implemented by StixWindow
-	abstract void CloseFrame();
-	abstract void PreUpdate();
-	abstract void PostUpdate();
+	void CloseFrame() {};
+	void PreUpdate() {};
+	void PostUpdate() {};
 	
 	//Implemented by user, start and update are required,
 	//Other events are not

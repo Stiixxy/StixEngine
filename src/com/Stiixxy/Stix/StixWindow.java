@@ -42,6 +42,32 @@ public abstract class StixWindow extends StixRunnable {
 	private static Color fillColor = Color.white;
 	private static Color strokeColor = Color.white;
 	
+	private static Shape currentShape = null;
+	
+	public void BeginShape() {
+		if(currentShape != null) {
+			System.out.println("ERROR: You are already creating a shape. Can't create 2 shapes at the same time");
+			return;
+		}
+		currentShape = new Shape();
+	}
+	
+	public void EndShape() {
+		if(currentShape == null) {
+			System.out.println("ERROR: You haven't started creating a shape.");
+			return;
+		}
+		if(fillColor != null) {
+			g.setColor(fillColor);
+			currentShape.Fill(g);
+		}
+		if(strokeColor != null) {
+			g.setColor(strokeColor);
+			currentShape.Stroke(g);
+		}
+		currentShape = null;
+	}
+	
 	public static void Fill(Color c) {
 		fillColor = c;
 	}
@@ -153,6 +179,10 @@ public abstract class StixWindow extends StixRunnable {
 	public void Point(int x, int y) {
 		if(g == null) {
 			System.out.println("ERROR: Tried to draw a point without creating a canvas first");
+			return;
+		}
+		if(currentShape != null) {
+			currentShape.AddPoints(new Point(x,y));
 			return;
 		}
 		if(strokeColor != null) {
@@ -317,6 +347,11 @@ public abstract class StixWindow extends StixRunnable {
 	void PostUpdate() {
 		//Show the screen
 		if(bs != null) bs.show();
+		
+		if(currentShape != null) {
+			System.out.print("WARMING: Unfinished shape left, clearing shape");
+			currentShape = null;
+		}
 	}
 	
 }

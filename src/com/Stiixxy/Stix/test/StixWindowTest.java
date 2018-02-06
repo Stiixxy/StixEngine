@@ -17,15 +17,11 @@ public class StixWindowTest extends StixWindow{
 	public void Update() {
 		Background(Color.white);
 		
-		StrokeWeight(3);
+		StrokeWeight(2);
 		Stroke(Color.BLACK);
 		Fill(Color.red);
-		
-		
-		Rect(10 , 10, 100, 100);
-		
-		
-		
+
+
 	}
 	
 	public static void main(String[] args) {
