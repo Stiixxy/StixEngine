@@ -4,9 +4,8 @@ import java.awt.Color;
 
 import com.Stiixxy.Stix.*;
 
-public class StixWindowTest extends StixWindowStatic{
+public class StixWindowTest extends StixWindow{
 	
-
 	@Override
 	public void Start() {
 		CreateCanvas(400, 400);
@@ -21,7 +20,11 @@ public class StixWindowTest extends StixWindowStatic{
 		StrokeWeight(3);
 		Stroke(Color.BLACK);
 		Fill(Color.red);
-		Rect(10, 10, 100, 100);
+		
+		
+		Rect(10 , 10, 100, 100);
+		
+		
 		
 	}
 	

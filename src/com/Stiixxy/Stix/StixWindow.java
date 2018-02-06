@@ -22,72 +22,47 @@ import java.util.Vector;
 
 import javax.swing.JFrame;
 
-public abstract class StixWindow implements Runnable{
+public abstract class StixWindow extends StixRunnable {
 	
-	public float deltaTime;
-	public int FPS = 0;
-	public int width, height;
-	public int mouseX, mouseY;
 	
-	public boolean MousePressed = false;
+	public static int width = 0, height = 0;
+	public static int mouseX = 0, mouseY = 0;
 	
-	JFrame frame;
-	Canvas canvas;
-	BufferStrategy bs;
-	Graphics2D g;
+	public static boolean MousePressed = false;
 	
-	Thread t;
+	private static JFrame frame;
+	private static Canvas canvas;
+	private static BufferStrategy bs;
+	private static Graphics2D g;
 	
-	Random r = new Random();
-	Vector<Character> pressedKeys = new Vector<Character>();
-	Stack<AffineTransform> translations = new Stack<AffineTransform>();
+	private static Random r;
+	private static Vector<Character> pressedKeys = new Vector<Character>();
+	private static Stack<AffineTransform> translations = new Stack<AffineTransform>();
 	
-	Color fillColor = Color.white;
-	Color strokeColor = Color.white;
+	private static Color fillColor = Color.white;
+	private static Color strokeColor = Color.white;
 	
-	int TARGET_FPS = 60;
-	long OPTIMAL_TIME = 1000000000 / TARGET_FPS;   
-	
-	boolean isRunning = true;
-	
-	public StixWindow GetWindow() {
-		return this;
-	}
-	
-	public void FPS(int fps) {
-		TARGET_FPS = fps;
-		OPTIMAL_TIME = 1000000000 / TARGET_FPS;
-	}
-	
-	public void Close() {
-		isRunning = false;
-	}
-	
-	public void StrokeWeight(int t) {
-		g.setStroke(new BasicStroke(t));
-	}
-	
-	public void Fill(Color c) {
+	public static void Fill(Color c) {
 		fillColor = c;
 	}
 	
-	public void Stroke(Color c) {
-		strokeColor = c;
-	}
-	
-	public void NoFill() {
+	public static void NoFill() {
 		fillColor = null;
 	}
 	
-	public void NoStroke() {
+	public static void Stroke(Color c) {
+		strokeColor = c;
+	}
+	
+	public static void NoStroke() {
 		strokeColor = null;
 	}
 	
-	public void Push() {
+	public static void Push() {
 		translations.push(new AffineTransform (g.getTransform()));
 	}
 	
-	public void Pop() {
+	public static void Pop() {
 		if(translations.size() == 0) {
 			System.out.println("ERROR: Tried to pop an translation while no translations were left");
 			return;
@@ -95,29 +70,64 @@ public abstract class StixWindow implements Runnable{
 		g.setTransform(translations.pop());
 	}
 	
-	public void Translate(int x, int y) {
+	
+	public static void Background(Color c) {
+		if(frame == null) {
+			System.out.println("ERROR: Tried to set background without creating a canvas");
+			return;
+		}
+		g.setColor(c);
+		g.fillRect(0, 0, width, height);
+	}
+	
+	public void FPS(int fps) {
+		TARGET_FPS = fps;
+		OPTIMAL_TIME = 1000000000 / TARGET_FPS;
+	}
+	
+	public static void StrokeWeight(int t) {
+		g.setStroke(new BasicStroke(t));
+	}
+	
+	public static Graphics GetGraphics() {
+		if(g == null) {
+			System.out.println("ERROR: Tried to get graphics without creating a canvas first");
+			return null;
+		}
+		return g;
+	}
+	
+	public static void Title(String title) {
+		if(frame == null) {
+			System.out.println("ERROR: Tried to set title without creating a canvas first");
+			return;
+		}
+		frame.setTitle(title);
+	}
+	
+	public static void Translate(int x, int y) {
 		g.translate(x, y);
 	}
 	
-	public void Rotate(double angle) {
+	public static void Rotate(double angle) {
 		//We want to rotate in degrees, g uses pi, 1 pi is 180 degrees
 		
 		g.rotate(angle / 180 * Math.PI);
 	}
 	
-	public void SeedRandom(long seed) {
+	public static void SeedRandom(long seed) {
 		r.setSeed(seed);
 	}
 	
-	public float Random() {
+	public static float Random() {
 		return r.nextFloat();
 	}
 	
-	public int Random(int x) {
+	public static int Random(int x) {
 		return r.nextInt(x);
 	}
 	
-	public int Random(int x, int y) {
+	public static int Random(int x, int y) {
 		return r.nextInt(y - x) + x;
 	}
 	
@@ -179,7 +189,15 @@ public abstract class StixWindow implements Runnable{
 		}
 	}
 	
-	public void Rect(int x, int y, int width, int height) {
+	public static boolean IsFocused() {
+		if(frame == null) {
+			System.out.println("ERROR: Tried to get focused without creating a canvas first");
+			return false;
+		}
+		return frame.isFocused();
+	}
+	
+	public static void Rect(int x, int y, int width, int height) {
 		if(g == null) {
 			System.out.println("ERROR: Tried to draw a rect without creating a canvas first");
 			return;
@@ -194,7 +212,7 @@ public abstract class StixWindow implements Runnable{
 		}
 	}
 	
-	public void Ellipse(int x, int y, int width, int height) {
+	public static void Ellipse(int x, int y, int width, int height) {
 		if(g == null) {
 			System.out.println("ERROR: Tried to draw a ellipse without creating a canvas first");
 			return;
@@ -209,40 +227,9 @@ public abstract class StixWindow implements Runnable{
 		}
 	}
 	
-	public void Background(Color c) {
-		if(frame == null) {
-			System.out.println("ERROR: Tried to set background without creating a canvas first");
-			return;
-		}
-		g.setColor(c);
-		g.fillRect(0, 0, frame.getWidth(), frame.getHeight());
-	}
-	
-	public void Title(String title) {
-		if(frame == null) {
-			System.out.println("ERROR: Tried to set title without creating a canvas first");
-			return;
-		}
-		frame.setTitle(title);
-	}
-	
-	public StixWindow() {
-		t = new Thread(this);
-		t.start();
-	}
-	
-	public Graphics GetGraphics() {
-		if(g == null) {
-			System.out.println("ERROR: Tried to get graphics without creating a canvas first");
-			return null;
-		}
-		return g;
-	}
-	
-	public void CreateCanvas(int width, int height) {
-		
-		this.width = width;
-		this.height = height;
+	public void CreateCanvas(int w, int h) {
+		width = w;
+		height = h;
 		
 		frame = new JFrame();
 		frame.setSize(width, height);
@@ -251,9 +238,9 @@ public abstract class StixWindow implements Runnable{
 		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		
 		frame.addWindowListener(new WindowAdapter() {
-		    public void windowClosing(WindowEvent e) {
-		        isRunning = false;
-		    }
+			public void windowClosing(WindowEvent e) {
+				Close();
+			}
 		});
 		
 		Dimension d = frame.getSize();
@@ -276,7 +263,6 @@ public abstract class StixWindow implements Runnable{
 				MousePressed = false;
 				MouseReleased();
 			}
-			
 		});
 		
 		canvas.addKeyListener(new KeyListener() {
@@ -301,74 +287,36 @@ public abstract class StixWindow implements Runnable{
 		canvas.createBufferStrategy(2);
 		bs = canvas.getBufferStrategy();
 		g = (Graphics2D) bs.getDrawGraphics();
+		
 	}
-
-	@Override
-	public void run() {
-		//Start method
-		Start();
-		
-		long lastLoopTime = System.nanoTime();
-		long lastFPSTime = 0;
-		 
-		int fps = 0;
-		
-		while(isRunning) {
-			long now = System.nanoTime();
-			long updateLength = now - lastLoopTime;
-			
-			lastLoopTime = now;
-			deltaTime = ((float) updateLength / 1000000000f);
-			
-			//Update frame counter
-			lastFPSTime += updateLength;
-			fps++;
-			
-			if(lastFPSTime > 1000000000) {
-				FPS = fps;
-				lastFPSTime = 0;
-				fps = 0;
-			}
-			
-			//Do some behind the scene logic
-			//Reset the translations
-			AffineTransform t = new AffineTransform();
-			if(g != null) g.setTransform(t);
-			
-			//Make sure that there are no push and pops left
-			translations.clear();
-			
-			//Save current mouse position
-			Point p = canvas.getMousePosition();
-			if(p != null) {
-				mouseX = p.x;
-				mouseY = p.y;	
-			}
-						
-			//Update the screen
-			Update();
-			if(bs != null) bs.show();
-			
-			//Make sure each frame takes at least the optimal time
-			//Taking into consideration how long this frame has taken
-			try {
-				Thread.sleep( (lastLoopTime - System.nanoTime() + OPTIMAL_TIME) / 1000000);
-			} catch(IllegalArgumentException e) {
-			} catch(Exception e) {
-				e.printStackTrace();
-			}
-		}
-		
+	
+	void CloseFrame() {
 		if(frame != null) {
 			frame.dispose();
 		}
 	}
-
-	public abstract void Start();
-	public abstract void Update();
-	public void MouseClicked() {};
-	public void MouseReleased() {};
-	public void KeyPressed(char key) {};
-	public void KeyReleased(char key) {};
-
+	
+	void PreUpdate() {
+		//called before the runnable is updated
+		
+		//Reset all translations
+		AffineTransform t = new AffineTransform();
+		if(g != null) g.setTransform(t);
+		
+		//Clear all translations
+		translations.clear();
+		
+		//Set mouse position
+		Point p = canvas.getMousePosition();
+		if(p != null) {
+			mouseX = p.x;
+			mouseY = p.y;
+		}
+	}
+	
+	void PostUpdate() {
+		//Show the screen
+		if(bs != null) bs.show();
+	}
+	
 }
