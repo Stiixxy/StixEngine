@@ -21,7 +21,7 @@ public class StixWindowTest extends StixWindow{
 		Stroke(Color.BLACK);
 		Fill(Color.red);
 
-
+		Ellipse(10, 10, 100, 100);
 	}
 	
 	public static void main(String[] args) {
