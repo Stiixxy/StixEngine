@@ -7,7 +7,7 @@ StixEngine is an engine I have been working on in my spare time, my goal is to m
 Stijn Veenman (http://stijnveenman.com/)
 
 ## Basic setup
-Download the lastest release from the releases folder, add the jar file as an external JAR file to your java project.
+Download the lastest release from the [Releases](https://github.com/Stiixxy/StixEngine/tree/master/Releases) folder, add the jar file as an external JAR file to your java project.
 The engine is now included. To start using the engine create any class and make it extend either `StixWindow` or `StixRunnable`. Where all classes that extend StixWindow can be able to create and draw on a canvas. And all classes that extend StixRunnable will be able to be started. Both types of classes will **have** to have the function `Start()` and `Update()`. As the names suggest start will be called before the sketch starts running and update will be called every frame. Then create a new object of your class in the main and call the `init()` function of that object. This will start the sketch. 
 
 ## Basic code example
